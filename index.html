@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="สื่อการเรียนรู้ฟิสิกส์ 2 เรื่องกฎอนุรักษ์โมเมนตัม - Physics Quiz Game">
+    <title>กฎอนุรักษ์โมเมนตัม - Physics Quiz</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💥</text></svg>">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt for Thai text -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for LaTeX Rendering -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw;
+        }
+        
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+        
+        main {
+            overflow-x: hidden !important;
+            max-width: 100%;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f472b6; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ec4899; 
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-correct {
+            animation: celebrate 0.6s ease-in-out, bounceIn 0.5s ease-out;
+        }
+
+        .result-incorrect {
+            animation: shake 0.5s ease-in-out, bounceIn 0.3s ease-out;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-icon {
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        /* Loading State */
+        .mathjax-loading {
+            position: relative;
+            min-height: 40px;
+        }
+
+        .btn-hitech {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.2), 0 2px 4px -1px rgba(236, 72, 153, 0.1);
+        }
+        .btn-hitech:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.3), 0 4px 6px -2px rgba(236, 72, 153, 0.1);
+        }
+        .btn-hitech:active {
+            transform: translateY(0);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* MathJax Adjustments - Responsive */
+        mjx-container {
+            font-size: 100% !important;
+        }
+        
+        @media (min-width: 640px) {
+            mjx-container {
+                font-size: 110% !important;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            mjx-container {
+                font-size: 120% !important;
+            }
+        }
+        
+        /* Touch-friendly buttons on mobile */
+        @media (max-width: 640px) {
+            button, .btn-hitech {
+                min-height: 44px;
+            }
+        }
+
+        /* Enhanced Focus Indicators */
+        *:focus-visible {
+            outline: 3px solid #ec4899;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        
+        #examples-container .mathjax-loading mjx-container {
+            display: block !important;
+            margin: 1em auto !important;
+            text-align: center;
+            max-width: 100%;
+            overflow-x: visible;
+        }
+    </style>
+</head>
+<body class="text-slate-800 overflow-x-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+            <div class="flex justify-between h-14 sm:h-16 items-center">
+                <div class="flex items-center cursor-pointer" onclick="showSection('home')">
+                    <i class="fa-solid fa-burst text-pink-600 text-xl sm:text-2xl mr-1 sm:mr-2"></i>
+                    <span class="font-bold text-base sm:text-lg md:text-xl text-slate-900 tracking-wide">นวัตกรรมการเรียนรู้ฟิสิกส์: <span class="text-pink-600">กฎอนุรักษ์โมเมนตัม</span></span>
+                </div>
+                <div>
+                    <button onclick="showSection('home')" class="text-slate-500 hover:text-pink-600 transition p-2 text-sm sm:text-base">
+                        <i class="fa-solid fa-house"></i> <span class="hidden sm:inline">หน้าแรก</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Info -->
+    <div class="bg-gradient-to-r from-pink-50 to-purple-50 border-b border-pink-100">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 text-center sm:text-left">
+                <div class="text-xs sm:text-sm text-slate-600">
+                    <i class="fa-solid fa-book text-pink-600 mr-1"></i>
+                    <span class="font-medium">รายวิชา ฟิสิกส์ 2</span>
+                    <span class="mx-1 sm:mx-2 text-slate-400">|</span>
+                    <span class="font-mono">รหัสวิชา ว31202</span>
+                </div>
+                <div class="text-xs sm:text-sm text-slate-600">
+                    <i class="fa-solid fa-school text-purple-600 mr-1"></i>
+                    <span>โรงเรียนห้องสอนศึกษา ในพระอุปถัมภ์ฯ</span>
+                </div>
+                <div class="text-xs sm:text-sm text-slate-600">
+                    <i class="fa-solid fa-chalkboard-user text-indigo-600 mr-1"></i>
+                    <span class="font-medium">ครูผู้สอน:</span> <span>นายสาธิต ศิริวัชน์</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto p-3 sm:p-4 md:p-6 mb-6 sm:mb-10">
+
+        <!-- SECTION: HOME -->
+        <section id="home" class="fade-in min-h-[70vh] sm:min-h-[80vh] flex flex-col items-center justify-center text-center py-4 sm:py-6">
+            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 md:p-10 lg:p-16 relative overflow-hidden max-w-4xl w-full border border-pink-100">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-400 to-purple-600"></div>
+                
+                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-3 sm:mb-4 px-2">กฎอนุรักษ์โมเมนตัม</h1>
+                <p class="text-base sm:text-lg text-slate-500 mb-6 sm:mb-8 md:mb-10 px-2">Law of Conservation of Momentum</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
+                    <button onclick="showSection('learn')" class="btn-hitech bg-white border-2 border-pink-100 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl flex flex-col items-center hover:border-pink-500 hover:bg-pink-50 active:scale-95 group focus:ring-2 focus:ring-pink-500 focus:outline-none">
+                        <div class="bg-pink-100 text-pink-600 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-3 sm:mb-4 group-hover:bg-pink-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <h3 class="font-semibold text-base sm:text-lg text-slate-700">เรียนรู้เนื้อหา</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">ทฤษฎีการชนและการระเบิด</p>
+                    </button>
+
+                    <button onclick="setupGroupQuiz()" class="btn-hitech bg-white border-2 border-pink-100 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl flex flex-col items-center hover:border-purple-500 hover:bg-purple-50 active:scale-95 group focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        <div class="bg-purple-100 text-purple-600 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-3 sm:mb-4 group-hover:bg-purple-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h3 class="font-semibold text-base sm:text-lg text-slate-700">สอบควิซกลุ่ม</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">สุ่มโจทย์การชน 4 กลุ่ม</p>
+                    </button>
+
+                    <button onclick="setupSoloQuiz()" class="btn-hitech bg-white border-2 border-pink-100 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl flex flex-col items-center hover:border-sky-500 hover:bg-sky-50 active:scale-95 group sm:col-span-2 lg:col-span-1 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <div class="bg-sky-100 text-sky-600 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-3 sm:mb-4 group-hover:bg-sky-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <h3 class="font-semibold text-base sm:text-lg text-slate-700">สอบควิซเดี่ยว</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">ทดสอบรายบุคคล</p>
+                    </button>
+                </div>
+
+                <div class="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-100">
+                    <p class="text-slate-500 text-xs sm:text-sm font-light px-2">
+                        <i class="fa-solid fa-code mr-1"></i> พัฒนาสื่อการเรียนรู้โดย: <span class="text-pink-600 font-medium">นายสาธิต ศิริวัชน์ (Coolnut)</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: LEARN -->
+        <section id="learn" class="hidden fade-in">
+            <div class="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 flex-wrap">
+                <button onclick="showSection('home')" class="bg-white p-2 sm:p-2.5 rounded-full shadow hover:bg-slate-50 text-slate-600 text-sm sm:text-base focus:ring-2 focus:ring-pink-500">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">บทเรียน: กฎอนุรักษ์โมเมนตัม</h2>
+            </div>
+
+            <!-- Concept Card -->
+            <div class="glass-panel p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl shadow-sm mb-4 sm:mb-6 border-l-4 border-pink-500">
+                <h3 class="text-lg sm:text-xl font-bold text-pink-700 mb-2"><i class="fa-solid fa-lightbulb mr-2"></i>หลักการสำคัญ</h3>
+                <p class="text-sm sm:text-base text-slate-700 leading-relaxed">
+                    "เมื่อไม่มีแรงลัพธ์ภายนอกมากระทำต่อระบบ ผลรวมของโมเมนตัมของระบบก่อนชนจะเท่ากับผลรวมของโมเมนตัมของระบบหลังชน" ใช้ได้ทั้งการชนแบบยืดหยุ่น การชนแบบไม่ยืดหยุ่น และการระเบิด<br>
+                    <div class="text-center my-3 sm:my-4 text-lg sm:text-xl overflow-x-hidden">
+                        $$ \Sigma \vec{p}_{\text{ก่อน}} = \Sigma \vec{p}_{\text{หลัง}} $$
+                        $$ m_1u_1 + m_2u_2 = m_1v_1 + m_2v_2 $$
+                    </div>
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-3 sm:mt-4">
+                    <div class="bg-orange-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-orange-100">
+                        <div class="font-bold text-sm sm:text-base text-orange-600">โมเมนตัม \( (\vec{p}) \)</div>
+                        <div class="text-xs sm:text-sm text-slate-600">ปริมาณเวกเตอร์</div>
+                        <div class="text-center mt-2 font-bold text-sm sm:text-base overflow-x-hidden">$$ \vec{p} = m\vec{v} $$</div>
+                    </div>
+                    <div class="bg-emerald-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-emerald-100">
+                        <div class="font-bold text-sm sm:text-base text-emerald-600">การดล \( (\vec{I}) \)</div>
+                        <div class="text-xs sm:text-sm text-slate-600">การเปลี่ยนแปลงโมเมนตัม</div>
+                        <!-- Updated Impulse Formula -->
+                        <div class="text-center mt-2 font-bold text-sm sm:text-base overflow-x-hidden">$$ \vec{I} = \Delta\vec{p} = \vec{F}\Delta t = \text{พื้นที่ใต้กราฟ} $$</div>
+                    </div>
+                    <!-- Replaced Inelastic Collision with Impulsive Force -->
+                    <div class="bg-purple-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-purple-100 sm:col-span-2 lg:col-span-1">
+                        <div class="font-bold text-sm sm:text-base text-purple-600">แรงดล \( (\vec{F}) \)</div>
+                        <div class="text-xs sm:text-sm text-slate-600">แรงเฉลี่ยในช่วงเวลาสั้นๆ</div>
+                        <div class="text-center mt-2 font-bold text-sm sm:text-base overflow-x-hidden">$$ \vec{F} = \frac{\Delta\vec{p}}{\Delta t} $$</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples -->
+            <div class="space-y-4 sm:space-y-6">
+                <h3 class="text-base sm:text-lg font-bold text-slate-700 ml-1 sm:ml-2">ตัวอย่างการคำนวณ</h3>
+                
+                <!-- Example Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6" id="examples-container">
+                    <!-- Example items will be injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: GROUP QUIZ -->
+        <section id="group-quiz" class="hidden fade-in">
+            <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <button onclick="showSection('home')" class="bg-white p-2 sm:p-2.5 rounded-full shadow hover:bg-slate-50 text-slate-600 text-sm sm:text-base focus:ring-2 focus:ring-pink-500">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">สอบควิซกลุ่ม (Group Quiz)</h2>
+                </div>
+                <button onclick="setupGroupQuiz()" class="btn-hitech bg-pink-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl shadow-lg hover:bg-pink-700 active:scale-95 text-sm sm:text-base w-full sm:w-auto focus:ring-2 focus:ring-pink-300">
+                    <i class="fa-solid fa-shuffle mr-2"></i> สุ่มสถานการณ์ใหม่
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6" id="group-quiz-container">
+                <!-- Group cards generated by JS -->
+            </div>
+        </section>
+
+        <!-- SECTION: SOLO QUIZ -->
+        <section id="solo-quiz" class="hidden fade-in">
+            <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <button onclick="showSection('home')" class="bg-white p-2 sm:p-2.5 rounded-full shadow hover:bg-slate-50 text-slate-600 text-sm sm:text-base focus:ring-2 focus:ring-pink-500">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">สอบควิซเดี่ยว (Solo Quiz)</h2>
+                </div>
+                <!-- เพิ่มปุ่ม Refresh สำหรับ Solo Quiz -->
+                <button onclick="setupSoloQuiz()" class="btn-hitech bg-sky-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl shadow-lg hover:bg-sky-700 active:scale-95 text-sm sm:text-base w-full sm:w-auto focus:ring-2 focus:ring-sky-300">
+                    <i class="fa-solid fa-shuffle mr-2"></i> สุ่มโจทย์ใหม่
+                </button>
+            </div>
+
+            <div class="max-w-2xl mx-auto" id="solo-quiz-container">
+                <!-- Solo card generated by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JS LOGIC -->
+    <script>
+        // --- CONSTANTS ---
+        const scenariosBase = [
+            {
+                id: 'inelastic_collision',
+                type: 'ชนแล้วติดกัน',
+                title: 'รถชนแล้วติดกันไป',
+                desc: 'รถ A มวล 1000 kg วิ่งด้วยความเร็ว <b>[N]</b> m/s เข้าชนรถ B มวล 1000 kg ที่จอดนิ่ง หลังชนรถทั้งสองติดกันไป จงหาความเร็วปลายของรถทั้งสอง',
+                varUnit: 'm/s',
+                ansUnit: 'm/s',
+                solve: (n) => {
+                    return n / 2.0;
+                },
+                formula: '$$ m_1u_1 + m_2u_2 = (m_1+m_2)v \\Rightarrow v = \\frac{1000(N)}{2000} $$'
+            },
+            {
+                id: 'explosion_recoil',
+                type: 'การระเบิด/ถอยหลัง',
+                title: 'ปืนใหญ่ยิงกระสุน',
+                desc: 'ปืนใหญ่มวล 500 kg (อยู่บนพื้นลื่น) ยิงลูกปืนมวล 5 kg ออกไปในแนวราบด้วยความเร็ว <b>[N]</b>00 m/s ปืนใหญ่จะถอยหลังด้วยอัตราเร็วเท่าใด',
+                varUnit: '×100 m/s',
+                ansUnit: 'm/s',
+                solve: (n) => {
+                    const v_bullet = n * 100;
+                    return (5 * v_bullet) / 500;
+                },
+                formula: '$$ m_P v_P + m_G v_G = 0 \\Rightarrow v_G = \\frac{m_P v_P}{m_G} $$'
+            },
+            {
+                id: 'elastic_collision',
+                type: 'ชนยืดหยุ่น (มวลเท่า)',
+                title: 'ลูกบิลเลียดชนกัน',
+                desc: 'ลูกบิลเลียด A มวล 0.2 kg เคลื่อนที่ด้วยความเร็ว <b>[N]</b> m/s เข้าชนลูกบิลเลียด B มวล 0.2 kg ที่อยู่นิ่ง (ชนแบบยืดหยุ่นสมบูรณ์และชนผ่านจุดศูนย์กลาง) หาความเร็วลูก B หลังชน',
+                varUnit: 'm/s',
+                ansUnit: 'm/s',
+                solve: (n) => {
+                    return n;
+                },
+                formula: '$$ \\text{มวลเท่ากัน ชนยืดหยุ่น} \\rightarrow \\text{แลกความเร็วกัน} \\Rightarrow v_B = u_A $$'
+            },
+            {
+                id: 'momentum_basic',
+                type: 'หาโมเมนตัม',
+                title: 'คำนวณโมเมนตัม',
+                desc: 'วัตถุมวล <b>[N]</b> kg เคลื่อนที่ด้วยความเร็ว 20 m/s จะมีขนาดของโมเมนตัมเท่าใด',
+                varUnit: 'kg',
+                ansUnit: 'kg·m/s',
+                solve: (n) => {
+                    return n * 20;
+                },
+                formula: '$$ p = mv \\Rightarrow p = (N)(20) $$'
+            },
+            {
+                id: 'impulse_force',
+                type: 'การดล',
+                title: 'เตะลูกบอล',
+                desc: 'เตะลูกบอลมวล 0.5 kg ที่วางนิ่ง ให้มีความเร็ว <b>[N]</b> m/s จงหาการดลที่เกิดขึ้นกับลูกบอล',
+                varUnit: 'm/s',
+                ansUnit: 'N·s',
+                solve: (n) => {
+                    return 0.5 * n;
+                },
+                formula: '$$ I = m(v-u) \\Rightarrow I = 0.5(N - 0) $$'
+            },
+            {
+                id: 'inelastic_moving',
+                type: 'ชนแล้วติด (วิ่งสวน)',
+                title: 'รถวิ่งสวนกัน',
+                desc: 'รถ A มวล 2000 kg วิ่งขวาด้วยความเร็ว 10 m/s ชนกับรถ B มวล <b>[N]</b>00 kg ที่วิ่งสวนมาด้วยความเร็ว 20 m/s แล้วติดกันไป จงหาขนาดของโมเมนตัมรวมก่อนชน',
+                varUnit: '×100 kg',
+                ansUnit: 'kg·m/s',
+                solve: (n) => {
+                    const massB = n * 100;
+                    const pA = 2000 * 10;
+                    const pB = massB * 20;
+                    return Math.abs(pA - pB);
+                },
+                formula: '$$ |\\Sigma p| = |p_A - p_B| = |(2000)(10) - (100N)(20)| $$'
+            },
+            // --- เพิ่มโจทย์ใหม่ 3 ข้อ: พลังงาน, ความเร็วหลังดล, กราฟ F-t ---
+            {
+                id: 'energy_change',
+                type: 'พลังงานจลน์ที่หายไป',
+                title: 'การชนและพลังงาน',
+                desc: 'วัตถุ A มวล 1.0 kg เคลื่อนที่ไปทางขวาด้วยความเร็ว <b>[N]</b> m/s เข้าชนวัตถุ B มวล 2.0 kg ซึ่งอยู่นิ่ง หลังชน A กระดอนกลับด้วยความเร็ว 1.0 m/s พลังงานจลน์ของระบบเปลี่ยนแปลงเท่าใด (ตอบเป็นค่าบวกลบ)',
+                varUnit: 'm/s',
+                ansUnit: 'J',
+                solve: (n) => {
+                    // 1*N + 0 = 1*(-1) + 2*v2 => v2 = (N+1)/2
+                    const v2 = (n + 1) / 2.0;
+                    const Ek_i = 0.5 * 1.0 * (n * n);
+                    const Ek_f = (0.5 * 1.0 * 1.0) + (0.5 * 2.0 * v2 * v2);
+                    return Ek_f - Ek_i;
+                },
+                formula: '$$ v_B = \\frac{N+1}{2}, \\quad \\Delta E_k = [\\frac{1}{2}(1)(-1)^2 + \\frac{1}{2}(2)v_B^2] - \\frac{1}{2}(1)N^2 $$'
+            },
+            {
+                id: 'impulse_velocity',
+                type: 'การดลและความเร็ว',
+                title: 'หาความเร็วหลังดล',
+                desc: 'วัตถุมวล 1.2 kg กำลังเคลื่อนที่ด้วยความเร็ว <b>[N]</b> m/s ต่อมาได้รับการดลขนาด 36 N·s ในทิศทางเดียวกับการเคลื่อนที่ จงหาความเร็วหลังได้รับการดล',
+                varUnit: 'm/s',
+                ansUnit: 'm/s',
+                solve: (n) => {
+                    // 36 = 1.2(v - N) => 30 = v - N => v = N + 30
+                    return n + 30;
+                },
+                formula: '$$ 36 = 1.2(v - N) \\Rightarrow 30 = v - N \\Rightarrow v = N + 30 $$'
+            },
+            {
+                id: 'impulse_graph',
+                type: 'กราฟ F-t',
+                title: 'การหาการดลจากกราฟ',
+                desc: 'จากกราฟแรง (F) กับเวลา (t) รูปสามเหลี่ยมที่มีฐานกว้าง 4 วินาที และจุดยอดสูง <b>[N]</b> นิวตัน จงหาขนาดของการดล (Impulse) ที่เกิดขึ้น',
+                visual: `
+                <svg viewBox="0 0 240 140" class="w-full h-auto max-w-[250px] mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Prompt', sans-serif;">
+                    <line x1="30" y1="110" x2="220" y2="110" stroke="#475569" stroke-width="2" />
+                    <line x1="30" y1="110" x2="30" y2="10" stroke="#475569" stroke-width="2" />
+                    <path d="M30 110 L125 20 L220 110" fill="rgba(236, 72, 153, 0.1)" stroke="#db2777" stroke-width="3" />
+                    <line x1="125" y1="20" x2="125" y2="110" stroke="#db2777" stroke-width="1" stroke-dasharray="4" />
+                    <text x="225" y="115" font-size="12" fill="#475569" font-weight="bold">t(s)</text>
+                    <text x="15" y="15" font-size="12" fill="#475569" font-weight="bold">F(N)</text>
+                    <text x="20" y="125" font-size="12" fill="#64748b">0</text>
+                    <text x="215" y="125" font-size="12" fill="#64748b">4</text>
+                    <text x="130" y="70" font-size="12" fill="#db2777" font-weight="bold">สูง [N]</text>
+                </svg>
+                `,
+                varUnit: 'N',
+                ansUnit: 'N·s',
+                solve: (n) => {
+                    // Area = 0.5 * base * height = 0.5 * 4 * n = 2n
+                    return 2 * n;
+                },
+                formula: '$$ I = \\text{พื้นที่ใต้กราฟ} = \\frac{1}{2}(4)(N) = 2N $$'
+            }
+        ];
+
+        const exampleData = [
+            { 
+                type: '\\( \\text{การชนไม่ยืดหยุ่น} \\)', 
+                title: 'รถบรรทุกชนรถเก๋ง', 
+                q: 'รถบรรทุก 5000 kg เร็ว 10 m/s ชนรถเก๋ง 1000 kg ที่จอดนิ่งแล้วติดกันไป หาความเร็วปลาย?', 
+                method: '$$ \\Sigma p_{\\text{ก่อน}} = \\Sigma p_{\\text{หลัง}} $$ $$ m_1u_1 + m_2u_2 = (m_1+m_2)v $$ $$ (5000)(10) + 0 = (6000)v $$ $$ 50000 = 6000v \\Rightarrow v \\approx 8.33\\ m/s $$' 
+            },
+            { 
+                type: '\\( \\text{การระเบิด} \\)', 
+                title: 'นักบินอวกาศขว้างของ', 
+                q: 'นักบิน 80 kg อยู่นิ่ง ขว้างเครื่องมือ 2 kg ไปข้างหน้าด้วยความเร็ว 10 m/s นักบินถอยหลังเร็วเท่าใด?', 
+                method: '$$ \\Sigma p_{\\text{ก่อน}} = \\Sigma p_{\\text{หลัง}} = 0 $$ $$ m_1v_1 + m_2v_2 = 0 $$ $$ (80)v_1 + (2)(10) = 0 $$ $$ 80v_1 = -20 \\Rightarrow v_1 = -0.25\\ m/s $$' 
+            },
+            { 
+                type: '\\( \\text{การดล} \\)', 
+                title: 'ลูกเทนนิสกระทบกำแพง', 
+                q: 'ลูกเทนนิส 0.1 kg เข้าชนกำแพง 20 m/s สะท้อนกลับ 20 m/s หาขนาดการดล?', 
+                method: '$$ I = m(v - u) $$ $$ I = 0.1(20 - (-20)) $$ $$ I = 0.1(40) = 4\\ N\\cdot s $$' 
+            },
+            { 
+                type: '\\( \\text{กราฟ } F-t \\)', 
+                title: 'การหาการดลจากกราฟ', 
+                q: 'แรงลัพธ์ (F) กระทำต่อวัตถุเปลี่ยนแปลงตามเวลา (t) ดังกราฟรูปสามเหลี่ยม จงหาขนาดของการดลที่เกิดขึ้นในช่วง 4 วินาที', 
+                visual: `
+                <svg viewBox="0 0 240 140" class="w-full h-auto max-w-[250px] mx-auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Prompt', sans-serif;">
+                    <line x1="30" y1="110" x2="220" y2="110" stroke="#475569" stroke-width="2" />
+                    <line x1="30" y1="110" x2="30" y2="10" stroke="#475569" stroke-width="2" />
+                    <path d="M30 110 L125 20 L220 110" fill="rgba(236, 72, 153, 0.1)" stroke="#db2777" stroke-width="3" />
+                    <line x1="125" y1="20" x2="125" y2="110" stroke="#db2777" stroke-width="1" stroke-dasharray="4" />
+                    <text x="225" y="115" font-size="12" fill="#475569" font-weight="bold">t(s)</text>
+                    <text x="15" y="15" font-size="12" fill="#475569" font-weight="bold">F(N)</text>
+                    <text x="20" y="125" font-size="12" fill="#64748b">0</text>
+                    <text x="215" y="125" font-size="12" fill="#64748b">4</text>
+                    <text x="130" y="70" font-size="12" fill="#db2777" font-weight="bold">สูง 10</text>
+                </svg>
+                `,
+                method: '$$ I = \\text{พื้นที่ใต้กราฟ } F-t $$ $$ I = \\frac{1}{2} \\times \\text{ฐาน} \\times \\text{สูง} $$ $$ I = \\frac{1}{2}(4)(10) = 20\\ N\\cdot s $$' 
+            },
+            {
+                type: '\\( \\Delta E_k \\)',
+                title: 'การชนและพลังงาน',
+                q: 'A (1 kg) เร็ว 5 m/s ชน B (2 kg) นิ่ง แล้ว A เด้งกลับ 1 m/s พลังงานจลน์ระบบเปลี่ยนเท่าใด?',
+                method: '$$ \\Sigma p_i = \\Sigma p_f \\Rightarrow 5 = -1 + 2v_B \\Rightarrow v_B = 3 $$ $$ \\Delta E_k = E_{kf} - E_{ki} $$ $$ E_{ki} = \\frac{1}{2}(1)(5^2) = 12.5\\ J $$ $$ E_{kf} = \\frac{1}{2}(1)(1^2) + \\frac{1}{2}(2)(3^2) = 9.5\\ J $$ $$ \\Delta E_k = 9.5 - 12.5 = -3.0\\ J $$'
+            },
+            {
+                type: '\\( \\vec{I} = \\Delta \\vec{p} \\)',
+                title: 'ความเร็วหลังดล',
+                q: 'วัตถุ 1.2 kg เร็ว 6.5 m/s ถูกดล 36 N·s ทิศเดิม จงหาความเร็วปลาย',
+                method: '$$ I = m(v - u) $$ $$ 36 = 1.2(v - 6.5) $$ $$ 30 = v - 6.5 \\Rightarrow v = 36.5\\ m/s $$'
+            }
+        ];
+
+        // --- MATHJAX UTILS ---
+        let mathJaxLoading = false;
+        
+        function typesetMath(container = null) {
+            if (window.MathJax) {
+                mathJaxLoading = true;
+                const target = container || document.body;
+                
+                if (container) {
+                    container.classList.add('mathjax-loading');
+                }
+                
+                MathJax.typesetPromise([target]).then(() => {
+                    mathJaxLoading = false;
+                    if (container) {
+                        container.classList.remove('mathjax-loading');
+                    }
+                }).catch((err) => {
+                    mathJaxLoading = false;
+                    if (container) {
+                        container.classList.remove('mathjax-loading');
+                    }
+                    console.warn('MathJax rendering error:', err);
+                });
+            }
+        }
+
+        // --- NAVIGATION ---
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            if(id === 'learn') {
+                renderExamples();
+            } else {
+                setTimeout(typesetMath, 50);
+            }
+        }
+
+        // --- RENDER LEARN SECTION ---
+        function renderExamples() {
+            const container = document.getElementById('examples-container');
+            container.innerHTML = exampleData.map((ex, idx) => {
+                const visualContent = ex.visual ? ex.visual : '<i class="fa-solid fa-car-burst text-6xl text-slate-300"></i>';
+                
+                return `
+                <div class="bg-white p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition" role="article" aria-label="ตัวอย่างที่ ${idx + 1}: ${ex.title}">
+                    <div class="flex items-center justify-between mb-2 sm:mb-3 flex-wrap gap-2">
+                        <span class="bg-pink-100 text-pink-700 text-xs font-bold px-2 sm:px-3 py-1 rounded-full" aria-label="ประเภท: ${ex.type}">${ex.type}</span>
+                        <span class="text-slate-400 text-xs sm:text-sm">Ex ${idx + 1}</span>
+                    </div>
+                    <h4 class="font-bold text-sm sm:text-base text-slate-800 mb-2">${ex.title}</h4>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 sm:mb-4">${ex.q}</p>
+                    <div class="mb-3 sm:mb-4 flex justify-center bg-slate-50 rounded-lg p-4 overflow-hidden">
+                       ${visualContent}
+                    </div>
+                    <div class="bg-slate-50 p-2 sm:p-3 rounded-lg border border-slate-200">
+                        <p class="text-xs text-slate-600 font-semibold mb-1">วิธีทำ:</p>
+                        <div class="text-slate-800 text-xs sm:text-sm mathjax-loading">
+                            ${ex.method}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            typesetMath(container);
+            
+            const mathElements = container.querySelectorAll('.mathjax-loading');
+            mathElements.forEach(el => {
+                typesetMath(el);
+            });
+        }
+
+        // --- UTILS ---
+        function getRandomScenarios(count) {
+            let shuffled = [...scenariosBase].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        function formatDesc(desc, nVal) {
+            // Replace [N]
+            let formatted = desc;
+            if (formatted.includes('<b>[N]</b>')) {
+                formatted = formatted.replace('<b>[N]</b>', `<span class="text-pink-600 font-bold text-base sm:text-lg underline decoration-dashed">${nVal || '?'}</span>`);
+            }
+            if (formatted.includes('[N]')) {
+                 formatted = formatted.replace('[N]', `${nVal || '?'}`);
+            }
+            return formatted;
+        }
+
+        // --- QUIZ LOGIC ---
+        function createQuizCardHTML(scenario, index, isSolo = false) {
+            const cardId = isSolo ? `solo-0` : `group-${index}`;
+            const title = isSolo ? 'แบบทดสอบรายบุคคล' : `กลุ่มที่ ${index + 1}`;
+            const inputLabel = isSolo ? 'เลขที่ของคุณ' : 'ผลรวมเลขที่สมาชิก';
+            
+            // Check for Visual
+            let visualHTML = '';
+            if(scenario.visual) {
+                // If visual has [N], we will replace it dynamically in updateQuestionText
+                // For initial render, keep it as is or show default
+                visualHTML = `<div class="mb-3 flex justify-center" id="visual-${cardId}">${scenario.visual}</div>`;
+            }
+
+            return `
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-100 overflow-hidden" id="card-${cardId}" role="article" aria-label="${title}">
+                <div class="bg-gradient-to-r ${isSolo ? 'from-sky-500 to-cyan-500' : 'from-pink-500 to-purple-600'} p-3 sm:p-4 text-white flex justify-between items-center flex-wrap gap-2">
+                    <h3 class="font-bold text-base sm:text-lg"><i class="fa-solid ${isSolo ? 'fa-user' : 'fa-users'} mr-1 sm:mr-2" aria-hidden="true"></i>${title}</h3>
+                    <span class="text-xs bg-white/20 px-2 py-1 rounded text-white font-mono" aria-label="ประเภท: ${scenario.type}">${scenario.type}</span>
+                </div>
+                
+                <div class="p-4 sm:p-5 md:p-6">
+                    ${visualHTML}
+                    <div class="min-h-[60px] sm:min-h-[80px] mb-3 sm:mb-4 text-slate-700 text-xs sm:text-sm leading-relaxed" id="desc-${cardId}" aria-live="polite">
+                        ${formatDesc(scenario.desc, null)}
+                    </div>
+
+                    <div class="space-y-3 sm:space-y-4">
+                        <!-- Input Variable -->
+                        <div>
+                            <label for="input-n-${cardId}" class="block text-xs font-semibold text-slate-500 mb-1">${inputLabel}</label>
+                            <input type="number" id="input-n-${cardId}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 sm:py-2 text-slate-800 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition" placeholder="กรอกตัวเลข..." oninput="updateQuestionText('${cardId}', '${scenario.id}')" aria-label="${inputLabel}" onkeypress="if(event.key==='Enter') document.getElementById('input-ans-${cardId}').focus()">
+                        </div>
+
+                        <!-- Input Answer -->
+                        <div>
+                            <label for="input-ans-${cardId}" class="block text-xs font-semibold text-slate-500 mb-1">คำตอบที่ได้ (${scenario.ansUnit})</label>
+                            <input type="number" id="input-ans-${cardId}" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 sm:py-2 text-slate-800 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" placeholder="ทศนิยม 2 ตำแหน่ง" aria-label="คำตอบที่ได้ในหน่วย ${scenario.ansUnit}" onkeypress="if(event.key==='Enter') checkAnswer('${cardId}', '${scenario.id}')">
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="checkAnswer('${cardId}', '${scenario.id}')" class="flex-1 bg-slate-800 text-white py-2.5 sm:py-2 rounded-lg font-medium hover:bg-slate-700 active:scale-95 transition shadow-md text-sm sm:text-base focus:ring-2 focus:ring-slate-400" aria-label="ตรวจคำตอบ">
+                                <i class="fa-solid fa-check mr-2" aria-hidden="true"></i>ตรวจคำตอบ
+                            </button>
+                            <button onclick="clearQuizCard('${cardId}')" class="bg-slate-200 text-slate-700 px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-slate-300 active:scale-95 transition shadow-sm text-sm sm:text-base focus:ring-2 focus:ring-slate-400" aria-label="เคลียร์ข้อมูล">
+                                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Result Area -->
+                    <div id="result-${cardId}" class="hidden mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-100" aria-live="polite" aria-atomic="true"></div>
+                </div>
+            </div>
+            `;
+        }
+
+        // Store current scenarios in memory
+        let currentScenarios = {};
+
+        function setupGroupQuiz() {
+            showSection('group-quiz');
+            const container = document.getElementById('group-quiz-container');
+            container.innerHTML = '';
+            currentScenarios = {};
+
+            const scenarios = getRandomScenarios(4);
+            
+            scenarios.forEach((sc, idx) => {
+                const key = `group-${idx}`;
+                currentScenarios[key] = sc;
+                container.innerHTML += createQuizCardHTML(sc, idx, false);
+            });
+            typesetMath(); 
+        }
+
+        function setupSoloQuiz() {
+            showSection('solo-quiz');
+            const container = document.getElementById('solo-quiz-container');
+            container.innerHTML = '';
+            currentScenarios = {};
+
+            const sc = getRandomScenarios(1)[0];
+            const key = `solo-0`;
+            currentScenarios[key] = sc;
+            container.innerHTML = createQuizCardHTML(sc, 0, true);
+            typesetMath(); 
+        }
+
+        function updateQuestionText(cardId, scenarioId) {
+            const val = document.getElementById(`input-n-${cardId}`).value;
+            const scenario = currentScenarios[cardId];
+            
+            if (val && scenario) {
+                // Update Description
+                document.getElementById(`desc-${cardId}`).innerHTML = formatDesc(scenario.desc, val);
+                typesetMath(document.getElementById(`desc-${cardId}`));
+                
+                // Update Visual if present
+                const visualEl = document.getElementById(`visual-${cardId}`);
+                if(visualEl && scenario.visual) {
+                     visualEl.innerHTML = formatDesc(scenario.visual, val);
+                }
+            }
+        }
+
+        function clearQuizCard(cardId) {
+            document.getElementById(`input-n-${cardId}`).value = '';
+            document.getElementById(`input-ans-${cardId}`).value = '';
+            
+            const scenario = currentScenarios[cardId];
+            if (scenario) {
+                document.getElementById(`desc-${cardId}`).innerHTML = formatDesc(scenario.desc, null);
+                typesetMath(document.getElementById(`desc-${cardId}`));
+                
+                // Reset Visual
+                const visualEl = document.getElementById(`visual-${cardId}`);
+                if(visualEl && scenario.visual) {
+                     visualEl.innerHTML = formatDesc(scenario.visual, null);
+                }
+            }
+            
+            const resultDiv = document.getElementById(`result-${cardId}`);
+            resultDiv.classList.add('hidden');
+            resultDiv.innerHTML = '';
+            
+            document.getElementById(`input-n-${cardId}`).focus();
+        }
+
+        function checkAnswer(cardId, scenarioId) {
+            const nVal = parseFloat(document.getElementById(`input-n-${cardId}`).value);
+            const userAns = parseFloat(document.getElementById(`input-ans-${cardId}`).value);
+            const resultDiv = document.getElementById(`result-${cardId}`);
+            const scenario = currentScenarios[cardId];
+            const cardElement = document.getElementById(`card-${cardId}`);
+
+            if (isNaN(nVal) || isNaN(userAns)) {
+                alert("กรุณากรอกตัวเลขให้ครบถ้วน");
+                return;
+            }
+
+            // Calculate Correct Answer
+            const correctAns = scenario.solve(nVal);
+            const diff = Math.abs(correctAns - userAns);
+            const isCorrect = diff <= 0.05; // Slightly lenient for rounding
+
+            // Add visual feedback to card
+            if (isCorrect) {
+                cardElement.classList.add('result-correct');
+                setTimeout(() => cardElement.classList.remove('result-correct'), 600);
+            } else {
+                cardElement.classList.add('result-incorrect');
+                setTimeout(() => cardElement.classList.remove('result-incorrect'), 500);
+            }
+
+            // HTML for Result with enhanced animations
+            let html = '';
+            if (isCorrect) {
+                html = `
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-3 sm:p-4 text-center result-correct shadow-lg">
+                        <div class="result-icon">
+                            <i class="fa-solid fa-circle-check text-green-500 text-3xl sm:text-4xl mb-2 animate-bounce"></i>
+                        </div>
+                        <h4 class="text-green-700 font-bold text-base sm:text-lg mb-1">🎉 ถูกต้อง! เก่งมาก! 🎉</h4>
+                        <p class="text-xs sm:text-sm text-green-600 mt-1">คำตอบที่ถูกคือ <strong>${correctAns.toFixed(2)}</strong></p>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-300 rounded-lg p-3 sm:p-4 text-center result-incorrect shadow-lg">
+                        <div class="result-icon">
+                            <i class="fa-solid fa-circle-xmark text-red-500 text-3xl sm:text-4xl mb-2"></i>
+                        </div>
+                        <h4 class="text-red-700 font-bold text-base sm:text-lg mb-1">❌ ผิดจ้า ลองใหม่นะ</h4>
+                        <p class="text-xs sm:text-sm text-red-600">คำตอบที่ถูกคือ <strong>${correctAns.toFixed(2)}</strong></p>
+                        <p class="text-xs text-slate-500 mt-1">คำตอบคุณ: <strong>${userAns.toFixed(2)}</strong></p>
+                    </div>
+                `;
+            }
+
+            // Show Solution Logic
+            html += `
+                <div class="mt-3 sm:mt-4 bg-slate-50 p-3 sm:p-4 rounded-lg border border-slate-200 text-left text-xs sm:text-sm">
+                    <p class="font-bold text-slate-700 mb-2"><i class="fa-solid fa-calculator mr-1" aria-hidden="true"></i>วิธีทำ:</p>
+                    <p class="text-slate-600 mb-2">จากตัวแปร N = <strong>${nVal}</strong></p>
+                    <div class="text-slate-800 bg-white p-3 rounded-lg border-2 border-slate-200 text-center text-sm sm:text-base md:text-lg my-3 overflow-x-auto mathjax-loading">
+                        ${scenario.formula}
+                    </div>
+                    <p class="text-slate-600 text-center text-xs sm:text-sm mt-2">แทนค่าได้คำตอบ ≈ <strong class="text-pink-600 text-base">${correctAns.toFixed(2)}</strong> ${scenario.ansUnit}</p>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+            
+            const formulaDiv = resultDiv.querySelector('.mathjax-loading');
+            if (formulaDiv) {
+                typesetMath(formulaDiv);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.MathJax) {
+                MathJax.config = {
+                    ...MathJax.config,
+                    'HTML-CSS': {
+                        ...MathJax.config['HTML-CSS'],
+                        linebreaks: { automatic: true, width: 'container' }
+                    },
+                    'SVG': {
+                        ...MathJax.config['SVG'],
+                        linebreaks: { automatic: true, width: 'container' }
+                    }
+                };
+            }
+            typesetMath();
+        });
+    </script>
+</body>
+</html>
