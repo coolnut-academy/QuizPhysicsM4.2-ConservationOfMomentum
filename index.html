@@ -116,6 +116,9 @@
         /* MathJax Adjustments - Responsive */
         mjx-container {
             font-size: 100% !important;
+            overflow-x: auto; 
+            overflow-y: hidden;
+            max-width: 100%;
         }
         
         @media (min-width: 640px) {
@@ -151,6 +154,18 @@
             max-width: 100%;
             overflow-x: visible;
         }
+
+        /* Hamburger Menu Transition */
+        #mobile-menu {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 500px;
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="text-slate-800 overflow-x-hidden">
@@ -158,22 +173,60 @@
     <!-- Navbar -->
     <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-            <div class="flex justify-between h-14 sm:h-16 items-center">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo & Brand -->
                 <div class="flex items-center cursor-pointer" onclick="showSection('home')">
-                    <i class="fa-solid fa-burst text-pink-600 text-xl sm:text-2xl mr-1 sm:mr-2"></i>
-                    <span class="font-bold text-base sm:text-lg md:text-xl text-slate-900 tracking-wide">นวัตกรรมการเรียนรู้ฟิสิกส์: <span class="text-pink-600">กฎอนุรักษ์โมเมนตัม</span></span>
+                    <i class="fa-solid fa-burst text-pink-600 text-2xl sm:text-3xl mr-2"></i>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:gap-2 leading-tight">
+                        <span class="font-bold text-sm sm:text-lg md:text-xl text-slate-900 tracking-wide">นวัตกรรมการเรียนรู้ฟิสิกส์</span>
+                        <span class="hidden sm:inline text-slate-300">|</span>
+                        <span class="text-xs sm:text-base md:text-lg text-pink-600 font-medium">กฎอนุรักษ์โมเมนตัม</span>
+                    </div>
                 </div>
-                <div>
-                    <button onclick="showSection('home')" class="text-slate-500 hover:text-pink-600 transition p-2 text-sm sm:text-base">
-                        <i class="fa-solid fa-house"></i> <span class="hidden sm:inline">หน้าแรก</span>
+
+                <!-- Desktop Menu -->
+                <div class="hidden sm:flex items-center space-x-4">
+                    <button onclick="showSection('home')" class="text-slate-500 hover:text-pink-600 transition px-3 py-2 rounded-md text-sm font-medium hover:bg-pink-50">
+                        <i class="fa-solid fa-house mr-1"></i> หน้าแรก
                     </button>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <div class="flex sm:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-slate-500 hover:text-pink-600 focus:outline-none p-2" aria-label="เมนูหลัก">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="bg-white border-t border-slate-100 sm:hidden">
+            <div class="px-4 py-3 space-y-3">
+                <button onclick="showSection('home'); toggleMobileMenu()" class="block w-full text-left text-slate-600 hover:text-pink-600 font-medium py-2 border-b border-slate-50">
+                    <i class="fa-solid fa-house mr-2 text-pink-500"></i> กลับหน้าแรก
+                </button>
+                <!-- Info Section inside Hamburger for Mobile -->
+                <div class="pt-2 text-xs text-slate-500 space-y-2">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-book text-pink-400 w-5"></i>
+                        <span>รายวิชา ฟิสิกส์ 2 (ว31202)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-school text-purple-400 w-5"></i>
+                        <span>โรงเรียนห้องสอนศึกษาฯ</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-chalkboard-user text-indigo-400 w-5"></i>
+                        <span>ครูผู้สอน: นายสาธิต ศิริวัชน์</span>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Header Info -->
-    <div class="bg-gradient-to-r from-pink-50 to-purple-50 border-b border-pink-100">
+    <!-- Header Info (Desktop/Tablet Only) -->
+    <div class="hidden sm:block bg-gradient-to-r from-pink-50 to-purple-50 border-b border-pink-100">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 text-center sm:text-left">
                 <div class="text-xs sm:text-sm text-slate-600">
@@ -333,6 +386,16 @@
 
     <!-- JS LOGIC -->
     <script>
+        // --- MOBILE MENU LOGIC ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+            } else {
+                menu.classList.add('open');
+            }
+        }
+
         // --- CONSTANTS ---
         const scenariosBase = [
             {
@@ -469,54 +532,48 @@
             }
         ];
 
+        // Updated example data with academic language
         const exampleData = [
             { 
-                type: '\\( \\text{การชนไม่ยืดหยุ่น} \\)', 
-                title: 'รถบรรทุกชนรถเก๋ง', 
-                q: 'รถบรรทุก 5000 kg เร็ว 10 m/s ชนรถเก๋ง 1000 kg ที่จอดนิ่งแล้วติดกันไป หาความเร็วปลาย?', 
+                type: '\\( \\text{การชนแบบไม่ยืดหยุ่นสมบูรณ์} \\)', 
+                title: 'การชนและติดกันไป', 
+                q: 'รถบรรทุกมวล 5000 kg เคลื่อนที่ด้วยความเร็ว 10 m/s เข้าชนรถยนต์มวล 1000 kg ที่จอดนิ่ง ภายหลังการชนวัตถุทั้งสองเคลื่อนที่ติดกันไป จงคำนวณหาความเร็วปลายของระบบ', 
+                visual: '<img src="https://img5.pic.in.th/file/secure-sv1/18871c7951f33f4ac.png" class="w-full h-auto max-h-[300px] object-contain mx-auto rounded-lg" alt="Example 1">',
                 method: '$$ \\Sigma p_{\\text{ก่อน}} = \\Sigma p_{\\text{หลัง}} $$ $$ m_1u_1 + m_2u_2 = (m_1+m_2)v $$ $$ (5000)(10) + 0 = (6000)v $$ $$ 50000 = 6000v \\Rightarrow v \\approx 8.33\\ m/s $$' 
             },
             { 
-                type: '\\( \\text{การระเบิด} \\)', 
-                title: 'นักบินอวกาศขว้างของ', 
-                q: 'นักบิน 80 kg อยู่นิ่ง ขว้างเครื่องมือ 2 kg ไปข้างหน้าด้วยความเร็ว 10 m/s นักบินถอยหลังเร็วเท่าใด?', 
-                method: '$$ \\Sigma p_{\\text{ก่อน}} = \\Sigma p_{\\text{หลัง}} = 0 $$ $$ m_1v_1 + m_2v_2 = 0 $$ $$ (80)v_1 + (2)(10) = 0 $$ $$ 80v_1 = -20 \\Rightarrow v_1 = -0.25\\ m/s $$' 
+                type: '\\( \\text{การระเบิดของวัตถุ} \\)', 
+                title: 'การระเบิดและการถอยหลัง', 
+                q: 'นักบินอวกาศมวล 80 kg ลอยตัวอยู่นิ่งในอวกาศ ได้ขว้างเครื่องมือมวล 2 kg ออกไปทางด้านหน้าด้วยความเร็ว 10 m/s จงคำนวณหาความเร็วถอยหลังของนักบินอวกาศ', 
+                visual: '<img src="https://img2.pic.in.th/2aec1b5c44a4309e4.png" class="w-full h-auto max-h-[300px] object-contain mx-auto rounded-lg" alt="Example 2">',
+                method: '$$ \\Sigma p_{\\text{ก่อน}} = \\Sigma p_{\\text{หลัง}} $$ $$ m_1v_1 + m_2v_2 = 0 $$ $$ (80)v_1 + (2)(10) = 0 $$ $$ 80v_1 = -20 \\Rightarrow v_1 = -0.25\\ m/s $$' 
             },
             { 
-                type: '\\( \\text{การดล} \\)', 
-                title: 'ลูกเทนนิสกระทบกำแพง', 
-                q: 'ลูกเทนนิส 0.1 kg เข้าชนกำแพง 20 m/s สะท้อนกลับ 20 m/s หาขนาดการดล?', 
+                type: '\\( \\text{การดลและการเปลี่ยนแปลงโมเมนตัม} \\)', 
+                title: 'การดลจากการชนกำแพง', 
+                q: 'ลูกเทนนิสมวล 0.1 kg เคลื่อนที่เข้าชนกำแพงด้วยความเร็ว 20 m/s และสะท้อนกลับออกมาในทิศทางตรงข้ามด้วยความเร็ว 20 m/s จงคำนวณหาขนาดของการดลที่เกิดขึ้นกับลูกเทนนิส', 
+                visual: '<img src="https://img2.pic.in.th/36e56d08cb1a2d078.png" class="w-full h-auto max-h-[300px] object-contain mx-auto rounded-lg" alt="Example 3">',
                 method: '$$ I = m(v - u) $$ $$ I = 0.1(20 - (-20)) $$ $$ I = 0.1(40) = 4\\ N\\cdot s $$' 
             },
             { 
-                type: '\\( \\text{กราฟ } F-t \\)', 
-                title: 'การหาการดลจากกราฟ', 
-                q: 'แรงลัพธ์ (F) กระทำต่อวัตถุเปลี่ยนแปลงตามเวลา (t) ดังกราฟรูปสามเหลี่ยม จงหาขนาดของการดลที่เกิดขึ้นในช่วง 4 วินาที', 
-                visual: `
-                <svg viewBox="0 0 240 140" class="w-full h-auto max-w-[250px] mx-auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Prompt', sans-serif;">
-                    <line x1="30" y1="110" x2="220" y2="110" stroke="#475569" stroke-width="2" />
-                    <line x1="30" y1="110" x2="30" y2="10" stroke="#475569" stroke-width="2" />
-                    <path d="M30 110 L125 20 L220 110" fill="rgba(236, 72, 153, 0.1)" stroke="#db2777" stroke-width="3" />
-                    <line x1="125" y1="20" x2="125" y2="110" stroke="#db2777" stroke-width="1" stroke-dasharray="4" />
-                    <text x="225" y="115" font-size="12" fill="#475569" font-weight="bold">t(s)</text>
-                    <text x="15" y="15" font-size="12" fill="#475569" font-weight="bold">F(N)</text>
-                    <text x="20" y="125" font-size="12" fill="#64748b">0</text>
-                    <text x="215" y="125" font-size="12" fill="#64748b">4</text>
-                    <text x="130" y="70" font-size="12" fill="#db2777" font-weight="bold">สูง 10</text>
-                </svg>
-                `,
+                type: '\\( \\text{การหาการดลจากกราฟแรง-เวลา} \\)', 
+                title: 'พื้นที่ใต้กราฟ F-t', 
+                q: 'แรงลัพธ์ (F) ที่กระทำต่อวัตถุเปลี่ยนแปลงตามเวลา (t) ดังแสดงในกราฟรูปสามเหลี่ยม จงคำนวณหาขนาดของการดลที่เกิดขึ้นในช่วงเวลา 4 วินาที', 
+                visual: '<img src="https://img2.pic.in.th/4bb0609208ba2f6d6.png" class="w-full h-auto max-h-[300px] object-contain mx-auto rounded-lg" alt="Example 4">',
                 method: '$$ I = \\text{พื้นที่ใต้กราฟ } F-t $$ $$ I = \\frac{1}{2} \\times \\text{ฐาน} \\times \\text{สูง} $$ $$ I = \\frac{1}{2}(4)(10) = 20\\ N\\cdot s $$' 
             },
             {
-                type: '\\( \\Delta E_k \\)',
-                title: 'การชนและพลังงาน',
-                q: 'A (1 kg) เร็ว 5 m/s ชน B (2 kg) นิ่ง แล้ว A เด้งกลับ 1 m/s พลังงานจลน์ระบบเปลี่ยนเท่าใด?',
+                type: '\\( \\text{การสูญเสียพลังงานจลน์ในการชน} \\)', 
+                title: 'การชนและพลังงาน', 
+                q: 'วัตถุ A มวล 1.0 kg เคลื่อนที่ด้วยความเร็ว 5.0 m/s เข้าชนวัตถุ B มวล 2.0 kg ซึ่งอยู่นิ่ง หลังการชนพบว่าวัตถุ A เคลื่อนที่ย้อนกลับด้วยความเร็ว 1.0 m/s จงคำนวณหาพลังงานจลน์ของระบบที่เปลี่ยนแปลงไป',
+                visual: '<img src="https://img5.pic.in.th/file/secure-sv1/5a9114542ff7cbfe4.png" class="w-full h-auto max-h-[300px] object-contain mx-auto rounded-lg" alt="Example 5">',
                 method: '$$ \\Sigma p_i = \\Sigma p_f \\Rightarrow 5 = -1 + 2v_B \\Rightarrow v_B = 3 $$ $$ \\Delta E_k = E_{kf} - E_{ki} $$ $$ E_{ki} = \\frac{1}{2}(1)(5^2) = 12.5\\ J $$ $$ E_{kf} = \\frac{1}{2}(1)(1^2) + \\frac{1}{2}(2)(3^2) = 9.5\\ J $$ $$ \\Delta E_k = 9.5 - 12.5 = -3.0\\ J $$'
             },
             {
-                type: '\\( \\vec{I} = \\Delta \\vec{p} \\)',
-                title: 'ความเร็วหลังดล',
-                q: 'วัตถุ 1.2 kg เร็ว 6.5 m/s ถูกดล 36 N·s ทิศเดิม จงหาความเร็วปลาย',
+                type: '\\( \\text{ความเร็วหลังได้รับการดล} \\)', 
+                title: 'ความเร็วและการดล',
+                q: 'วัตถุมวล 1.2 kg กำลังเคลื่อนที่ด้วยความเร็ว 6.5 m/s ต่อมาได้รับการดลขนาด 36 N·s ในทิศทางเดียวกับการเคลื่อนที่ จงคำนวณหาความเร็วของวัตถุภายหลังจากการได้รับการดล',
+                visual: '<img src="https://img2.pic.in.th/6aaa14dba31bb6d63.png" class="w-full h-auto max-h-[300px] object-contain mx-auto rounded-lg" alt="Example 6">',
                 method: '$$ I = m(v - u) $$ $$ 36 = 1.2(v - 6.5) $$ $$ 30 = v - 6.5 \\Rightarrow v = 36.5\\ m/s $$'
             }
         ];
@@ -554,10 +611,35 @@
             document.getElementById(id).classList.remove('hidden');
             window.scrollTo(0, 0);
 
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.remove('open');
+
             if(id === 'learn') {
                 renderExamples();
             } else {
                 setTimeout(typesetMath, 50);
+            }
+        }
+
+        // Toggle Solution Function
+        function toggleSolution(index) {
+            const solDiv = document.getElementById(`sol-${index}`);
+            const btn = document.getElementById(`btn-sol-${index}`);
+            
+            if (solDiv.classList.contains('hidden')) {
+                solDiv.classList.remove('hidden');
+                solDiv.classList.add('fade-in');
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash mr-2"></i>ซ่อนวิธีทำ';
+                btn.classList.replace('bg-pink-100', 'bg-slate-200');
+                btn.classList.replace('text-pink-700', 'text-slate-700');
+                // Ensure MathJax renders if not already
+                typesetMath(solDiv);
+            } else {
+                solDiv.classList.add('hidden');
+                solDiv.classList.remove('fade-in');
+                btn.innerHTML = '<i class="fa-solid fa-eye mr-2"></i>แสดงวิธีทำ';
+                btn.classList.replace('bg-slate-200', 'bg-pink-100');
+                btn.classList.replace('text-slate-700', 'text-pink-700');
             }
         }
 
@@ -574,12 +656,17 @@
                         <span class="text-slate-400 text-xs sm:text-sm">Ex ${idx + 1}</span>
                     </div>
                     <h4 class="font-bold text-sm sm:text-base text-slate-800 mb-2">${ex.title}</h4>
-                    <p class="text-slate-600 text-xs sm:text-sm mb-3 sm:mb-4">${ex.q}</p>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 sm:mb-4 leading-relaxed">${ex.q}</p>
                     <div class="mb-3 sm:mb-4 flex justify-center bg-slate-50 rounded-lg p-4 overflow-hidden">
                        ${visualContent}
                     </div>
-                    <div class="bg-slate-50 p-2 sm:p-3 rounded-lg border border-slate-200">
-                        <p class="text-xs text-slate-600 font-semibold mb-1">วิธีทำ:</p>
+                    
+                    <button id="btn-sol-${idx}" onclick="toggleSolution(${idx})" class="w-full bg-pink-100 text-pink-700 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-pink-200 transition mb-2">
+                        <i class="fa-solid fa-eye mr-2"></i>แสดงวิธีทำ
+                    </button>
+
+                    <div id="sol-${idx}" class="hidden bg-slate-50 p-2 sm:p-3 rounded-lg border border-slate-200 transition-all duration-300">
+                        <p class="text-xs text-slate-600 font-semibold mb-1">เฉลยวิธีทำ:</p>
                         <div class="text-slate-800 text-xs sm:text-sm mathjax-loading">
                             ${ex.method}
                         </div>
@@ -588,12 +675,9 @@
                 `;
             }).join('');
             
+            // Only typeset non-hidden math initially to save performance, 
+            // but for simplicity we can typeset container. Hidden math will be typeset but invisible.
             typesetMath(container);
-            
-            const mathElements = container.querySelectorAll('.mathjax-loading');
-            mathElements.forEach(el => {
-                typesetMath(el);
-            });
         }
 
         // --- UTILS ---
